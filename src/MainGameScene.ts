@@ -36,6 +36,7 @@ module ui {
 
 			ui.PanelManager.instance.setContainer(this);
 			GameController.instance.setMainGameScene(this);
+			//test git commmit
 		}
 
 		private generateNextBlock():ui.BlockObject{
