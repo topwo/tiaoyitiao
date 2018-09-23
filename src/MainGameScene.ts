@@ -2,23 +2,15 @@ module ui {
 
 	
 
-	export class MainGameScene extends eui.Component {
+	export class MainGameScene extends ui.BaseGameScene {
 
-		public move_container : egret.DisplayObjectContainer;
+		
 		private touchLayer : egret.DisplayObjectContainer;
-		public player : egret.DisplayObject;
-		public player_img : egret.DisplayObject;
-		public player_container : egret.DisplayObjectContainer;
-		public block_container : egret.DisplayObjectContainer;
-
-		public current_block : ui.BlockObject;
-		public next_block : ui.BlockObject;
-
 		private start_time : number;
 		private end_time : number;
 		private is_touching : boolean;
 
-		public is_first_start : boolean;
+		
 		public is_in_jumping : boolean;
 
 		public label_score : eui.Label;
@@ -28,15 +20,14 @@ module ui {
 			super();
 			GameUtils.mainGameScene = this;
 			this.skinName = "GameMainView";
+			GameController.instance.setMaxBlockInUse(5)
 			this.addEventListener(egret.Event.ADDED_TO_STAGE, this.onAddToStage, this);
 			this.addEventListener(egret.Event.RESIZE, this.onResize, this);
 			
 			this.touchLayer.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onTouchBegin, this);
 			this.touchLayer.addEventListener(egret.TouchEvent.TOUCH_END, this.onTouchEnd, this);
 
-			ui.PanelManager.instance.setContainer(this);
 			GameController.instance.setMainGameScene(this);
-			//test git commmit
 		}
 
 		private generateNextBlock():ui.BlockObject{
@@ -101,19 +92,25 @@ module ui {
 
 		private onJumpFail(){
 			this.is_in_jumping = false;
-			ui.PanelManager.instance.showGameOverTips();
+			ui.PanelManager.instance.showGameOverTips(this.curr_score);
 		}
 
 		private onJumpSuccess(){
+			let add_score = this.next_block.getPlayerScore()
 			this.current_block = this.next_block;
 			this.generateNextBlock();
-			this.curr_score += 5;
+			this.curr_score += add_score;
+			if(add_score == 10){
+				ui.PanelManager.instance.showMessage("太棒了！+" + add_score)
+			}else{
+				ui.PanelManager.instance.showMessage("+" + add_score)
+			}
+			
 			this._updateScore();
 		}
 
 		private onAddToStage(evt:egret.Event):void
 		{
-			GameUtils.stage = this.stage;
 			this.restartGame();
 			this.removeEventListener(egret.Event.ADDED_TO_STAGE, this.onAddToStage, this);
 		}
@@ -134,6 +131,7 @@ module ui {
 			this.start_time = egret.getTimer();
 			this.addEventListener(egret.Event.ENTER_FRAME, this.TouchEnterFrame, this);
 			this.is_touching = true;
+			GameController.instance.playPushSound()
 		}
 
 		private TouchEnterFrame(event:egret.Event):void
@@ -167,7 +165,7 @@ module ui {
 			scale_tween.to({scaleX:1, scaleY:1}, 0.05 * 1000).call(function(){
 				this.jumpPlayer(delta_time / 1000)
 			}, this)
-
+			GameController.instance.playJumpSound()
 			this.is_touching = false;
 		}	
 

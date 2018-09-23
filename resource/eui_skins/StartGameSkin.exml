@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<e:Skin class="StartGameSkin" width="640" height="1138" xmlns:e="http://ns.egret.com/eui" xmlns:w="http://ns.egret.com/wing">
+	<e:Image source="bg_jpg" x="0" y="0"/>
+	<e:Group id="move_container" width="640" height="1136" x="0" y="0" touchEnabled="false" touchThrough="true">
+		<e:Group id="block_container" width="640" height="1136" x="0" y="0" touchEnabled="false" touchThrough="true">
+			<e:Image source="block1_png" x="32" y="702" scaleX="0.8" scaleY="0.8" visible="false"/>
+		</e:Group>
+		<e:Group id="player_container" width="640" height="1136" x="0" y="0" scaleX="1" scaleY="1" touchEnabled="false" touchChildren="false" touchThrough="true">
+		<e:Group id="player" width="48" height="130" x="56" y="928" anchorOffsetX="24" anchorOffsetY="130" scaleY="1" scaleX="1">
+			<e:Image id="player_img" source="piece_png" x="24" y="65" anchorOffsetX="24" anchorOffsetY="65" scaleX="1" scaleY="1" locked="true"/>
+		</e:Group>
+		</e:Group>
+	</e:Group>
+	<e:Label text="跳一跳" textColor="0x666262" fontFamily="KaiTi" size="100" horizontalCenter="0" verticalCenter="-308"/>
+	<e:Button id="btn_start" label="" verticalCenter="379.5" horizontalCenter="3.5" touchChildren="true" touchEnabled="true" enabled="true">
+		<e:skinName>
+		<e:Skin states="up,down,disabled">
+			<e:Image width="100%" height="100%" source="start_btn_png"/>
+			<e:Label id="labelDisplay" horizontalCenter="0" verticalCenter="0"/>
+		</e:Skin>
+		</e:skinName>
+	</e:Button>
+</e:Skin>

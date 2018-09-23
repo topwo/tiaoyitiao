@@ -14,6 +14,14 @@ class GameConfig{
 
 	public static min_random_x:number = 220;
 	public static max_random_x:number = 300;
+
+	public static min_simulate_random_x:number = 200;
+
+	public static default_simulate_init_player_x:number = 56  
+	public static default_simulate_init_player_y:number = 878
+
+	public static default_simulate_init_block_x:number = 32;
+	public static default_simulate_init_block_y:number = 702;
 }
 
 class GameUtils {
@@ -260,7 +268,7 @@ class GameUtils {
 	 */
 	public static tweenPushPlayerDownEffect(callback:Function = null, callbackThis:Object = null)
 	{
-		let move_tween2 = egret.Tween.get(this.mainGameScene.player)
+		let move_tween2 = egret.Tween.get(GameController.instance.mainScene.player)
 		move_tween2.to({scaleX:1.3, scaleY:0.7}, 0.08 * 1000, egret.Ease.sineIn)
 		.to({scaleX:1, scaleY:1}, 0.05 * 1000).call(function(){
 			if(callback)
@@ -292,13 +300,34 @@ class GameUtils {
 		return _rotation
 	}
 
+	public static calcTimeWhenPlayerMovePoint(target_x:number, target_y:number)
+	{
+		let acce = 30
+		let speed_distance=60
+
+		let global_block_center = GameController.instance.getNextBlock().getCenterGlobalPoint();
+		let global_player_point = GameUtils.getPlayerGlobalPoint();
+		let temp_degree = Math.atan((global_block_center.y - global_player_point.y) / (global_block_center.x - global_player_point.x))
+		let degree = Math.atan(Math.abs((global_block_center.y - global_player_point.y) / (global_block_center.x - global_player_point.x)))
+		if(global_block_center.x > global_player_point.x){
+			temp_degree = -1 * temp_degree
+		}else{
+			temp_degree = Math.PI - temp_degree
+		}
+
+		let rate_x = Math.cos(temp_degree)
+		let rate_y = Math.sin(temp_degree)
+		return (target_x - global_player_point.x) / (2 * rate_x * speed_distance) * 10 / 30
+
+	}
+
 	public static calcPlayerMovePoints(push_down_time:number, global_center_top_point:egret.Point, global_target_point:egret.Point):number
 	{
-		let acce = 20
-		let speed = 30 * push_down_time
+		let acce = 30
+		let speed = acce * push_down_time
 		let move_time = speed / 10
 
-		let speed_distance= 50
+		let speed_distance=60
 		let target_height = speed * move_time * 0.5
 		let seg_time = 0.2 * 1000
 		if(push_down_time < 500){
@@ -335,4 +364,24 @@ class GameUtils {
 		global_target_point.y = target_y
 		return seg_time
 	}
+
+	public static addButtonClick(button:eui.Button, callback:Function, callbackThis:Object):void
+	{
+		button.enabled = true;
+		button.touchEnabled = true;
+		button.addEventListener(egret.TouchEvent.TOUCH_BEGIN, function(){
+			GameUtils.tweenScaleTo(button, 0.9, 0.9, 0.1 * 1000, null)
+		}, this)
+		button.addEventListener(egret.TouchEvent.TOUCH_END, function(){
+			GameUtils.tweenScaleTo(button, 1, 1, 0.2 * 1000, null)
+		}, this)
+		button.addEventListener(egret.TouchEvent.TOUCH_TAP, function(){
+			if(callback)
+			{
+				callback.apply(callbackThis)
+			}
+		}, this)
+	}
+
+	
 }

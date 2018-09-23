@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<e:Skin class="MessageTipsSkin" width="400" height="300" xmlns:e="http://ns.egret.com/eui" xmlns:w="http://ns.egret.com/wing">
+	<e:Label id="label_tips" text="+2" textAlign="center" touchEnabled="false" verticalAlign="middle" multiline="true" maxWidth="300" x="183" y="135" textColor="0x00ff00" stroke="1" size="40"/>
+</e:Skin>

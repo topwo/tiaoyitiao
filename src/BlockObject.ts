@@ -11,6 +11,7 @@ module ui {
 		public radio_right : number;
 		public radio_left : number;
 
+		private label_index : eui.Label
 		private img : eui.Image;
 		
 		public constructor() {
@@ -18,14 +19,20 @@ module ui {
 			this.skinName = "block";
 			this.center = new egret.DisplayObject();
 			this.center.x = (this.node1.x + this.node3.x) / 2;
-			this.center.y = (this.node2.y + this.node4.y) / 2;
+			this.center.y = (this.node2.y + this.node4.y) / 2 + 20;
 			this.addChild(this.center);
 			console.log(this.center.x, this.center.y);
 			
 			this.radio_right = (this.node3.y - this.node4.y) / (this.node3.x - this.node4.x)
 			this.radio_left = (this.node1.y - this.node4.y) / (this.node1.x - this.node4.x)
-
+			this.label_index.visible = false
 			this.reUse()
+		}
+		
+		public setIndex(index:number):void
+		{
+			this.label_index.visible = true
+			this.label_index.text = index.toString()
 		}
 
 		private getNodeGlobalPoint(displayObject:egret.DisplayObject):egret.Point{
@@ -88,11 +95,41 @@ module ui {
 			}
 		}
 
+		//角色是否在中间的区域
+		public getPlayerScore()
+		{
+			let global_player_point = GameUtils.getPlayerGlobalPoint();
+			let global_block_center_point = this.getCenterGlobalPoint()
+			if(Math.abs(global_block_center_point.x - global_player_point.x ) <= 10 && Math.abs(global_block_center_point.y - global_player_point.y) <= 10)
+			{
+				return 10;
+			}
+
+			if(Math.abs(global_block_center_point.x - global_player_point.x ) <= 20 && Math.abs(global_block_center_point.y - global_player_point.y) <= 20)
+			{
+				return 8;
+			}
+
+			if(Math.abs(global_block_center_point.x - global_player_point.x ) <= 30 && Math.abs(global_block_center_point.y - global_player_point.y) <= 30)
+			{
+				return 6;
+			}
+
+			return 5;
+		}
+
 		public reUse():void
 		{
 			let name_index = Math.floor(Math.random() * this.res_keys.length)
 			let name = this.res_keys[name_index];
 			this.img.texture = RES.getRes(name)
+		}
+
+		public changeGrayColor()
+		{
+			let name_index = 2
+			let name = this.res_keys[name_index];
+			this.img.texture = RES.getRes(name) 
 		}
 
 		public remove():void

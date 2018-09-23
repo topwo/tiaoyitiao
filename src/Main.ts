@@ -59,7 +59,18 @@ class Main extends eui.UILayer {
 
     private async runGame() {
         await this.loadResource()
-        this.addChild(new ui.MainGameScene());
+        
+        GameUtils.stage = this.stage;
+        
+        let game_layer = new egret.DisplayObjectContainer();
+        this.addChild(game_layer);
+        ui.PanelManager.instance.setContainer(game_layer);
+
+        let message_container = new egret.DisplayObjectContainer()
+        this.addChild(message_container);
+        ui.PanelManager.instance.setMessageContainer(message_container)
+
+        ui.PanelManager.instance.showStartPanel()
         /*
         this.createGameScene();
         const result = await RES.getResAsync("description_json")

@@ -8,16 +8,19 @@
 		"libs/modules/promise/promise.js"
 	],
 	"game": [
-		"bin-debug/LoadingUI.js",
-		"bin-debug/AssetAdapter.js",
+		"bin-debug/BaseGameScene.js",
+		"bin-debug/Main.js",
+		"bin-debug/BlockObject.js",
 		"bin-debug/GameController.js",
 		"bin-debug/GameOverTips.js",
 		"bin-debug/GameUtils.js",
-		"bin-debug/BlockObject.js",
-		"bin-debug/Main.js",
+		"bin-debug/LoadingUI.js",
+		"bin-debug/AssetAdapter.js",
 		"bin-debug/MainGameScene.js",
+		"bin-debug/MessageTips.js",
 		"bin-debug/PanelManager.js",
 		"bin-debug/Platform.js",
+		"bin-debug/StartGameScene.js",
 		"bin-debug/ThemeAdapter.js"
 	]
 }
