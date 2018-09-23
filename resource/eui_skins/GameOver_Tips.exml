@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<e:Skin class="GameOver_Tips" width="640" height="1138" xmlns:e="http://ns.egret.com/eui" xmlns:w="http://ns.egret.com/wing">
+	<e:Group width="640" height="1138" touchEnabled="true" horizontalCenter="0" verticalCenter="0" touchThrough="false">
+		<e:Rect width="640" height="1138" anchorOffsetX="0" anchorOffsetY="0" fillAlpha="0.5" horizontalCenter="0" verticalCenter="0" x="0" y="0" scaleX="1" scaleY="1" strokeColor="0xe82020" fillColor="0x070707"/>
+		<e:Label text="Game Over!" horizontalCenter="0" verticalCenter="0" textAlign="center" x="118" y="135" scaleX="1" scaleY="1"/>
+		<e:Button id="btnRestart" label="重新开始游戏" touchEnabled="true" touchChildren="true" horizontalCenter="0" verticalCenter="80" x="132" y="205" scaleX="1" scaleY="1"/>
+	</e:Group>
+</e:Skin>
