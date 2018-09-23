@@ -7,7 +7,9 @@
 		</e:Group>
 		<e:Group id="player_container" width="640" height="1136" x="0" y="0" scaleX="1" scaleY="1" touchEnabled="false" touchChildren="false" touchThrough="true">
 		<e:Group id="player" width="48" height="130" x="56" y="928" anchorOffsetX="24" anchorOffsetY="130" scaleY="1" scaleX="1">
-			<e:Image id="player_img" source="piece_png" x="24" y="65" anchorOffsetX="24" anchorOffsetY="65" scaleX="1" scaleY="1" locked="true"/>
+			<e:Group id="push_scale_player" width="48" height="130" x="24" y="130" scaleX="0.6" scaleY="0.6" anchorOffsetX="24" anchorOffsetY="130">
+				<e:Image id="player_img" source="piece_png" x="24" y="65" anchorOffsetX="24" anchorOffsetY="65" scaleX="1" scaleY="1"/>
+			</e:Group>
 		</e:Group>
 		</e:Group>
 	</e:Group>

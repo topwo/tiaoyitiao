@@ -3,6 +3,7 @@ module ui {
 
 		private btn_start:eui.Button
 		private is_destory:boolean = false;
+		private push_scale_player:egret.DisplayObject;
 
 		public constructor() {
 			super()
@@ -78,7 +79,7 @@ module ui {
 			}
 			let __this = this
 			setTimeout(function() {
-				__this.jump_to_next_block(function(){
+				__this.jump_to_next_block(null, function(){
 					__this.start_change_color()
 				})
 		 	}, 0.5 * 1000);
@@ -172,16 +173,64 @@ module ui {
 			this.current_block = this.next_block || blocks[0]
 			this.next_block = GameController.instance.generateNextBlock(0.6);
 			GameController.instance.moveCarmera();
+
+			// let total_scale_y = 0
+			// let frame_index = 0
+			// let init_y = this.player.y
+			// let total_time = 0
+			// while(total_scale_y <= 0.3){
+			// 	frame_index += 1
+			// 	total_scale_y += 0.1 * 1 / 30;
+			// 	this.player.y = init_y -  total_scale_y * this.current_block.height * 0.6
+			// 	total_time += 1 / 30
+			// 	let ret = GameUtils.TestCalcDeltaXByPushTime(total_time)
+			// 	console.log(frame_index,ret)
+			// }
+			
 			setTimeout(function() {
-				__this.jump_to_next_block()
-				setTimeout(function(){
-					__this.auto_generate_block_and_jump()
-				}, 0.5 * 1000)
+				__this.play_block_push_effect(function(){
+					__this.jump_to_next_block()
+					setTimeout(function(){
+						__this.auto_generate_block_and_jump()
+					}, 0.5 * 1000)
+				})
 			}, 1.0 * 1000);
 		}
 
+		private play_block_push_effect(callback:Function = null)
+		{
+			if(callback)
+				{
+					callback()
+				}
+			// let global_block_center = GameController.instance.getNextBlock().getCenterGlobalPoint();
+			// let global_player_point = GameUtils.getPlayerGlobalPoint();
+			// let push_time = GameUtils.calcTimeWhenPlayerMovePoint(global_block_center.x, global_block_center.y)
 
-		private jump_to_next_block(callback:Function = null)
+			// let push_down_speed = GameConfig.push_down_acce * push_time  //松开后的速度
+			// let half_move_time = push_down_speed / GameConfig.gravity_acce  //计算向上运动的时间
+			// let total_move_time = half_move_time * 2
+
+			// let speed_distance = GameConfig.move_speed_distance
+			// let target_height = push_down_speed * half_move_time * 0.5  //计算向上运动的高度
+
+			// let __this = this
+			// let delta_scale_y = 0.1 * push_time
+			// let delta_y = delta_scale_y * this.current_block.height * 0.6
+			// push_time *= (1 + delta_y / target_height)
+			// GameUtils.tweenScaleTo(this.current_block.container, 1, 1 - delta_scale_y, 0.2 * 1000, null, function(){
+			// 	GameUtils.tweenScaleTo(__this.current_block.container, 1, 1, 0.2 * 1000, null)
+			// }, this)
+			// GameUtils.tweenMoveBy(this.push_scale_player, 0, delta_y, 0.2 * 1000, null, function(){
+			// 	if(callback)
+			// 	{
+			// 		callback(push_time)
+			// 	}
+			// }, this)
+		}
+
+
+		private jump_to_next_block(push_time:number = null, callback:Function = null)
 		{
 			let global_block_center = this.next_block.getCenterGlobalPoint();
 			let global_player_point = GameUtils.getPlayerGlobalPoint();
@@ -189,8 +238,12 @@ module ui {
 
 			let global_center_top_point = new egret.Point()
 			let global_target_point = new egret.Point()
-			let time = GameUtils.calcTimeWhenPlayerMovePoint(global_block_center.x, global_block_center.y)
-			let seg_time = GameUtils.calcPlayerMovePoints(time, global_center_top_point, global_target_point)
+			if(!push_time)
+			{
+				push_time = GameUtils.calcTimeWhenPlayerMovePoint(global_block_center.x, global_block_center.y)
+			}
+			// let time = GameUtils.calcTimeWhenPlayerMovePoint(global_block_center.x, global_block_center.y)
+			let seg_time = GameUtils.calcPlayerMovePoints(push_time, global_center_top_point, global_target_point)
 			let local_center_point = GameUtils.convertGlobalPoint2PlayerLocalPoint(global_center_top_point.x, global_center_top_point.y);
 			let local_target_point = GameUtils.convertGlobalPoint2PlayerLocalPoint(global_target_point.x, global_target_point.y);
 

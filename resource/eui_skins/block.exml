@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <e:Skin class="block" width="358" height="240" xmlns:e="http://ns.egret.com/eui" xmlns:w="http://ns.egret.com/wing">
-	<e:Group width="358" height="240" x="0" y="0" rotation="0">
-		<e:Image id="img" source="block1_png" x="0" y="0" scaleX="1" scaleY="1"/>
+	<e:Group id="container" width="358" height="240" x="179" y="240" rotation="0" anchorOffsetX="179" anchorOffsetY="240" scaleY="1">
+		<e:Image id="img" source="block1_png" x="179" y="240" scaleX="1" scaleY="1" anchorOffsetX="179" anchorOffsetY="240"/>
 		<e:Group id="node1" width="52" height="52" anchorOffsetX="26" anchorOffsetY="52" x="92.01" y="78.37" scaleX="1" scaleY="1">
 		</e:Group>
 		<e:Group id="node2" width="52" height="52" anchorOffsetX="26" anchorOffsetY="52" x="224.01" y="0" scaleX="1" scaleY="1"/>

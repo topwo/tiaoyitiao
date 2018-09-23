@@ -10,11 +10,12 @@ module ui {
 		private end_time : number;
 		private is_touching : boolean;
 
-		
 		public is_in_jumping : boolean;
 
 		public label_score : eui.Label;
 		private curr_score : number = 0;
+		private touchStartPlayerX : number = 0;
+		private touchStartPlayerY : number = 0;
 		
 		public constructor() {
 			super();
@@ -128,6 +129,8 @@ module ui {
 			if(!this.next_block){
 				return;
 			}
+			this.touchStartPlayerX = this.player.x;
+			this.touchStartPlayerY = this.player.y;
 			this.start_time = egret.getTimer();
 			this.addEventListener(egret.Event.ENTER_FRAME, this.TouchEnterFrame, this);
 			this.is_touching = true;
@@ -146,8 +149,13 @@ module ui {
 			current_scale_y -= 0.1 * 1 / 30;
 			current_scale_x = Math.min(current_scale_x, 1.8)
 			current_scale_y = Math.max(current_scale_y, 0.7)
+
+			this.current_block.container.scaleY = current_scale_y
 			this.player.scaleX = current_scale_x
 			this.player.scaleY = current_scale_y
+
+			let delta_y = (1 - current_scale_y) * this.current_block.height
+			this.player.y = this.touchStartPlayerY + delta_y
 		}
 
 		private onTouchEnd(event:egret.TouchEvent):void
@@ -157,14 +165,13 @@ module ui {
 			}
 			this.end_time = egret.getTimer();
 			let delta_time = this.end_time - this.start_time;
-			delta_time = Math.min(delta_time, 10 * 1000);
-			console.log(delta_time);
 			this.removeEventListener(egret.Event.ENTER_FRAME, this.TouchEnterFrame, this);
 			
 			let scale_tween = egret.Tween.get(this.player)
 			scale_tween.to({scaleX:1, scaleY:1}, 0.05 * 1000).call(function(){
 				this.jumpPlayer(delta_time / 1000)
 			}, this)
+			GameUtils.tweenScaleTo(this.current_block.container, 1, 1, 0.1 * 1000, null);
 			GameController.instance.playJumpSound()
 			this.is_touching = false;
 		}	

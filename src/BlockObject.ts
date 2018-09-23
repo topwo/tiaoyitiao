@@ -8,6 +8,7 @@ module ui {
 		public node4 : egret.DisplayObject;
 		public center : egret.DisplayObject;
 
+		public container : egret.DisplayObject;
 		public radio_right : number;
 		public radio_left : number;
 
