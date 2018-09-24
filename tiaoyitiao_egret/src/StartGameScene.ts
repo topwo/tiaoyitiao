@@ -1,15 +1,21 @@
 module ui {
 	export class StartGameScene extends ui.BaseGameScene{
 
+		private btn_close:eui.Button
+		private rank_group:egret.DisplayObjectContainer
+		private btn_rank:eui.Button
 		private btn_start:eui.Button
 		private is_destory:boolean = false;
 		private push_scale_player:egret.DisplayObject;
+		private user_info:any;
 
+		private hasLogin:boolean = false;
 		public constructor() {
 			super()
 			this.skinName = "StartGameSkin"
 			
 			GameUtils.addButtonClick(this.btn_start, this.onClick, this)
+			GameUtils.addButtonClick(this.btn_rank, this.onClickRank, this)
 			
 			GameController.instance.setMaxBlockInUse(10)
 			this.player.x = GameConfig.default_simulate_init_player_x;
@@ -20,6 +26,54 @@ module ui {
 			setTimeout(function() {
 				__this.start_generate_simulate_animation()
 			}, 0.5 * 1000);
+
+			this.startLogin()
+
+			platform.openDataContext.postMessage({
+				command: "loadRes"
+			});
+
+			GameUtils.addButtonClick(this.btn_close, function(){
+				platform.openDataContext.postMessage({
+					command: "close"
+				});
+				__this.rank_group.visible = false;
+			}, this)
+
+			platform.openDataContext.postMessage({
+				command: "showRank",
+				rank_key: "tiaoyitiao_score"
+			});
+		}
+
+		private onClickRank():void
+		{
+			
+			let bitmap = platform.openDataContext.createDisplayObject(null,this.stage.stageWidth, this.stage.stageHeight);
+			
+			platform.openDataContext.postMessage({
+				isDisplay: true,
+				text: 'hello',
+				year: (new Date()).getFullYear(),
+				command: "open"
+			});
+			this.rank_group.visible = true
+			this.rank_group.addChild(bitmap)
+		}
+
+		private async startLogin() {
+			// let has_login = await platform.getSetting()
+			// console.log("#####startLogin########", has_login)
+			// if(!has_login){
+			// 	await platform.login();
+			// 	const userInfo = await platform.getUserInfo();
+			// 	console.log(userInfo);
+			// 	this.hasLogin = true
+			// 	this.user_info = userInfo
+			// }else{
+			// 	this.hasLogin = true
+			// 	this.user_info = true
+			// }
 		}
 
 		private start_generate_simulate_animation():void
@@ -268,6 +322,12 @@ module ui {
 
 		private onClick(event:egret.TouchEvent):void
 		{
+			// console.log("###########", this.user_info, this.hasLogin)
+			// if(!this.hasLogin || !this.user_info){
+			// 	ui.PanelManager.instance.showMessage("您还未授权登录")
+			// 	return
+			// }
+
 			this.parent.removeChild(this)
 			this.is_destory = true
 			ui.PanelManager.instance.showGamePanel()

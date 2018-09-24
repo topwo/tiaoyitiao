@@ -287,7 +287,7 @@ var ui;
             _this.center.x = (_this.node1.x + _this.node3.x) / 2;
             _this.center.y = (_this.node2.y + _this.node4.y) / 2 + 20;
             _this.addChild(_this.center);
-            console.log(_this.center.x, _this.center.y);
+            // console.log(this.center.x, this.center.y);
             _this.radio_right = (_this.node3.y - _this.node4.y) / (_this.node3.x - _this.node4.x);
             _this.radio_left = (_this.node1.y - _this.node4.y) / (_this.node1.x - _this.node4.x);
             _this.label_index.visible = false;
@@ -388,6 +388,7 @@ var GameController = (function () {
         this._pushSoundChannel = null;
         this._jumpSound = null;
         this._jumpSoundChannel = null;
+        this.start_play_time = 0;
     }
     Object.defineProperty(GameController, "instance", {
         get: function () {
@@ -561,11 +562,44 @@ var ui;
             _this.skinName = "GameOver_Tips";
             _this.btnRestart.addEventListener(egret.TouchEvent.TOUCH_TAP, _this.onTouchTap, _this);
             _this.label_score.text = "积分：" + score;
+            var save_func = function () {
+                wx.setStorage({ key: "my_score", data: score });
+                var end_time = new Date().getSeconds();
+                var KVDataList = [{
+                        key: "",
+                        value: ""
+                    }];
+                KVDataList[0].key = "tiaoyitiao_score";
+                KVDataList[0].value = JSON.stringify({
+                    "wxgame": {
+                        "score": score,
+                        "update_time": new Date().getSeconds()
+                    },
+                    "cost_ms": end_time - GameController.instance.start_play_time
+                });
+                platform.setUserCloudStorage(KVDataList);
+            };
+            if (typeof wx == "object") {
+                wx.getStorage({
+                    key: 'my_score',
+                    fail: function (res) {
+                        save_func();
+                    },
+                    success: function (res) {
+                        // console.log(res.data)
+                        if (!res.data || score > res.data) {
+                            save_func();
+                        }
+                    }
+                });
+            }
             return _this;
         }
         GameOverTips.prototype.onTouchTap = function (event) {
             this.parent.removeChild(this);
-            GameUtils.mainGameScene.restartGame();
+            GameUtils.mainGameScene.close();
+            ui.PanelManager.instance.showStartPanel();
+            // GameUtils.mainGameScene.restartGame();
         };
         return GameOverTips;
     }(eui.Component));
@@ -593,6 +627,9 @@ var GameConfig = (function () {
     GameConfig.default_simulate_init_player_y = 878;
     GameConfig.default_simulate_init_block_x = 32;
     GameConfig.default_simulate_init_block_y = 702;
+    GameConfig.push_down_acce = 40; //下压加速度
+    GameConfig.gravity_acce = 10; //重力加速度
+    GameConfig.move_speed_distance = 50; //移动的速度
     return GameConfig;
 }());
 __reflect(GameConfig.prototype, "GameConfig");
@@ -841,12 +878,9 @@ var GameUtils = (function () {
         return _rotation;
     };
     GameUtils.calcTimeWhenPlayerMovePoint = function (target_x, target_y) {
-        var acce = 30;
-        var speed_distance = 60;
         var global_block_center = GameController.instance.getNextBlock().getCenterGlobalPoint();
         var global_player_point = GameUtils.getPlayerGlobalPoint();
         var temp_degree = Math.atan((global_block_center.y - global_player_point.y) / (global_block_center.x - global_player_point.x));
-        var degree = Math.atan(Math.abs((global_block_center.y - global_player_point.y) / (global_block_center.x - global_player_point.x)));
         if (global_block_center.x > global_player_point.x) {
             temp_degree = -1 * temp_degree;
         }
@@ -855,22 +889,36 @@ var GameUtils = (function () {
         }
         var rate_x = Math.cos(temp_degree);
         var rate_y = Math.sin(temp_degree);
-        return (target_x - global_player_point.x) / (2 * rate_x * speed_distance) * 10 / 30;
+        return (target_x - global_player_point.x) / (2 * rate_x * GameConfig.move_speed_distance) * GameConfig.gravity_acce / GameConfig.push_down_acce;
+    };
+    GameUtils.TestCalcDeltaXByPushTime = function (push_down_time) {
+        var push_down_speed = GameConfig.push_down_acce * push_down_time; //松开后的速度
+        var half_move_time = push_down_speed / GameConfig.gravity_acce; //计算向上运动的时间
+        var total_move_time = half_move_time * 2;
+        var speed_distance = GameConfig.move_speed_distance;
+        var target_height = push_down_speed * half_move_time * 0.5; //计算向上运动的高度
+        var global_block_center = GameController.instance.getNextBlock().getCenterGlobalPoint();
+        var global_player_point = GameUtils.getPlayerGlobalPoint();
+        var temp_degree = Math.atan((global_block_center.y - global_player_point.y) / (global_block_center.x - global_player_point.x));
+        if (global_block_center.x > global_player_point.x) {
+            temp_degree = -1 * temp_degree;
+        }
+        else {
+            temp_degree = Math.PI - temp_degree;
+        }
+        var rate_x = Math.cos(temp_degree);
+        var rate_y = Math.sin(temp_degree);
+        return speed_distance * total_move_time * rate_x;
     };
     GameUtils.calcPlayerMovePoints = function (push_down_time, global_center_top_point, global_target_point) {
-        var acce = 30;
-        var speed = acce * push_down_time;
-        var move_time = speed / 10;
-        var speed_distance = 60;
-        var target_height = speed * move_time * 0.5;
-        var seg_time = 0.2 * 1000;
-        if (push_down_time < 500) {
-            seg_time = 0.1 * 1000;
-        }
+        var push_down_speed = GameConfig.push_down_acce * push_down_time; //松开后的速度
+        var half_move_time = push_down_speed / GameConfig.gravity_acce; //计算向上运动的时间
+        var total_move_time = half_move_time * 2;
+        var speed_distance = GameConfig.move_speed_distance;
+        var target_height = push_down_speed * half_move_time * 0.5; //计算向上运动的高度
         var global_block_center = GameController.instance.getNextBlock().getCenterGlobalPoint();
         var global_player_point = GameUtils.getPlayerGlobalPoint();
         var temp_degree = Math.atan((global_block_center.y - global_player_point.y) / (global_block_center.x - global_player_point.x));
-        var degree = Math.atan(Math.abs((global_block_center.y - global_player_point.y) / (global_block_center.x - global_player_point.x)));
         if (global_block_center.x > global_player_point.x) {
             temp_degree = -1 * temp_degree;
         }
@@ -879,17 +927,17 @@ var GameUtils = (function () {
         }
         var rate_x = Math.cos(temp_degree);
         var rate_y = Math.sin(temp_degree);
-        var target_x = speed_distance * move_time * 2 * rate_x + global_player_point.x;
-        var target_y = global_player_point.y - speed_distance * move_time * 2 * rate_y;
+        var target_x = global_player_point.x + speed_distance * total_move_time * rate_x;
+        var target_y = global_player_point.y - speed_distance * total_move_time * rate_y;
         var origin_center_x = (global_player_point.x + target_x) / 2;
         var oring_center_y = (global_player_point.y + target_y) / 2;
-        var center_x = origin_center_x - target_height * Math.sin(degree);
-        var center_y = oring_center_y - target_height * Math.cos(degree);
+        var center_x = origin_center_x - target_height * Math.abs(rate_y);
+        var center_y = oring_center_y - target_height * Math.abs(rate_x);
         global_center_top_point.x = center_x;
         global_center_top_point.y = center_y;
         global_target_point.x = target_x;
         global_target_point.y = target_y;
-        return seg_time;
+        return 1000 * 0.15;
     };
     GameUtils.addButtonClick = function (button, callback, callbackThis) {
         button.enabled = true;
@@ -1024,6 +1072,8 @@ var ui;
         function MainGameScene() {
             var _this = _super.call(this) || this;
             _this.curr_score = 0;
+            _this.touchStartPlayerX = 0;
+            _this.touchStartPlayerY = 0;
             GameUtils.mainGameScene = _this;
             _this.skinName = "GameMainView";
             GameController.instance.setMaxBlockInUse(5);
@@ -1032,6 +1082,7 @@ var ui;
             _this.touchLayer.addEventListener(egret.TouchEvent.TOUCH_BEGIN, _this.onTouchBegin, _this);
             _this.touchLayer.addEventListener(egret.TouchEvent.TOUCH_END, _this.onTouchEnd, _this);
             GameController.instance.setMainGameScene(_this);
+            GameController.instance.start_play_time = new Date().getSeconds();
             return _this;
         }
         MainGameScene.prototype.generateNextBlock = function () {
@@ -1116,6 +1167,8 @@ var ui;
             if (!this.next_block) {
                 return;
             }
+            this.touchStartPlayerX = this.player.x;
+            this.touchStartPlayerY = this.player.y;
             this.start_time = egret.getTimer();
             this.addEventListener(egret.Event.ENTER_FRAME, this.TouchEnterFrame, this);
             this.is_touching = true;
@@ -1131,8 +1184,11 @@ var ui;
             current_scale_y -= 0.1 * 1 / 30;
             current_scale_x = Math.min(current_scale_x, 1.8);
             current_scale_y = Math.max(current_scale_y, 0.7);
+            this.current_block.container.scaleY = current_scale_y;
             this.player.scaleX = current_scale_x;
             this.player.scaleY = current_scale_y;
+            var delta_y = (1 - current_scale_y) * this.current_block.height;
+            this.player.y = this.touchStartPlayerY + delta_y;
         };
         MainGameScene.prototype.onTouchEnd = function (event) {
             if (!this.is_touching) {
@@ -1140,13 +1196,12 @@ var ui;
             }
             this.end_time = egret.getTimer();
             var delta_time = this.end_time - this.start_time;
-            delta_time = Math.min(delta_time, 10 * 1000);
-            console.log(delta_time);
             this.removeEventListener(egret.Event.ENTER_FRAME, this.TouchEnterFrame, this);
             var scale_tween = egret.Tween.get(this.player);
             scale_tween.to({ scaleX: 1, scaleY: 1 }, 0.05 * 1000).call(function () {
                 this.jumpPlayer(delta_time / 1000);
             }, this);
+            GameUtils.tweenScaleTo(this.current_block.container, 1, 1, 0.1 * 1000, null);
             GameController.instance.playJumpSound();
             this.is_touching = false;
         };
@@ -1188,6 +1243,9 @@ var ui;
             GameUtils.tweenBounceUp(this.player, local_in_player_container.y, 50, 0.2 * 1000, 0.1 * 1000, function () {
                 this.is_in_jumping = false;
             }, this);
+        };
+        MainGameScene.prototype.close = function () {
+            this.parent.removeChild(this);
         };
         return MainGameScene;
     }(ui.BaseGameScene));
@@ -1291,6 +1349,27 @@ var DebugPlatform = (function () {
             });
         });
     };
+    DebugPlatform.prototype.setUserCloudStorage = function (KVDataList) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/];
+            });
+        });
+    };
+    DebugPlatform.prototype.getSetting = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/];
+            });
+        });
+    };
+    DebugPlatform.prototype.getUserCloudStorage = function (key_list) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/];
+            });
+        });
+    };
     return DebugPlatform;
 }());
 __reflect(DebugPlatform.prototype, "DebugPlatform", ["Platform"]);
@@ -1304,8 +1383,10 @@ var ui;
         function StartGameScene() {
             var _this = _super.call(this) || this;
             _this.is_destory = false;
+            _this.hasLogin = false;
             _this.skinName = "StartGameSkin";
             GameUtils.addButtonClick(_this.btn_start, _this.onClick, _this);
+            GameUtils.addButtonClick(_this.btn_rank, _this.onClickRank, _this);
             GameController.instance.setMaxBlockInUse(10);
             _this.player.x = GameConfig.default_simulate_init_player_x;
             _this.player.y = GameConfig.default_simulate_init_player_y;
@@ -1314,8 +1395,40 @@ var ui;
             setTimeout(function () {
                 __this.start_generate_simulate_animation();
             }, 0.5 * 1000);
+            _this.startLogin();
+            platform.openDataContext.postMessage({
+                command: "loadRes"
+            });
+            GameUtils.addButtonClick(_this.btn_close, function () {
+                platform.openDataContext.postMessage({
+                    command: "close"
+                });
+                __this.rank_group.visible = false;
+            }, _this);
+            platform.openDataContext.postMessage({
+                command: "showRank",
+                rank_key: "tiaoyitiao_score"
+            });
             return _this;
         }
+        StartGameScene.prototype.onClickRank = function () {
+            var bitmap = platform.openDataContext.createDisplayObject(null, this.stage.stageWidth, this.stage.stageHeight);
+            platform.openDataContext.postMessage({
+                isDisplay: true,
+                text: 'hello',
+                year: (new Date()).getFullYear(),
+                command: "open"
+            });
+            this.rank_group.visible = true;
+            this.rank_group.addChild(bitmap);
+        };
+        StartGameScene.prototype.startLogin = function () {
+            return __awaiter(this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    return [2 /*return*/];
+                });
+            });
+        };
         StartGameScene.prototype.start_generate_simulate_animation = function () {
             var last_block = null;
             var max_index = 6;
@@ -1364,7 +1477,7 @@ var ui;
             }
             var __this = this;
             setTimeout(function () {
-                __this.jump_to_next_block(function () {
+                __this.jump_to_next_block(null, function () {
                     __this.start_change_color();
                 });
             }, 0.5 * 1000);
@@ -1445,22 +1558,67 @@ var ui;
             this.current_block = this.next_block || blocks[0];
             this.next_block = GameController.instance.generateNextBlock(0.6);
             GameController.instance.moveCarmera();
+            // let total_scale_y = 0
+            // let frame_index = 0
+            // let init_y = this.player.y
+            // let total_time = 0
+            // while(total_scale_y <= 0.3){
+            // 	frame_index += 1
+            // 	total_scale_y += 0.1 * 1 / 30;
+            // 	this.player.y = init_y -  total_scale_y * this.current_block.height * 0.6
+            // 	total_time += 1 / 30
+            // 	let ret = GameUtils.TestCalcDeltaXByPushTime(total_time)
+            // 	console.log(frame_index,ret)
+            // }
             setTimeout(function () {
-                __this.jump_to_next_block();
-                setTimeout(function () {
-                    __this.auto_generate_block_and_jump();
-                }, 0.5 * 1000);
+                __this.play_block_push_effect(function () {
+                    __this.jump_to_next_block();
+                    setTimeout(function () {
+                        __this.auto_generate_block_and_jump();
+                    }, 0.5 * 1000);
+                });
             }, 1.0 * 1000);
         };
-        StartGameScene.prototype.jump_to_next_block = function (callback) {
+        StartGameScene.prototype.play_block_push_effect = function (callback) {
+            if (callback === void 0) { callback = null; }
+            if (callback) {
+                callback();
+            }
+            // let global_block_center = GameController.instance.getNextBlock().getCenterGlobalPoint();
+            // let global_player_point = GameUtils.getPlayerGlobalPoint();
+            // let push_time = GameUtils.calcTimeWhenPlayerMovePoint(global_block_center.x, global_block_center.y)
+            // let push_down_speed = GameConfig.push_down_acce * push_time  //松开后的速度
+            // let half_move_time = push_down_speed / GameConfig.gravity_acce  //计算向上运动的时间
+            // let total_move_time = half_move_time * 2
+            // let speed_distance = GameConfig.move_speed_distance
+            // let target_height = push_down_speed * half_move_time * 0.5  //计算向上运动的高度
+            // let __this = this
+            // let delta_scale_y = 0.1 * push_time
+            // let delta_y = delta_scale_y * this.current_block.height * 0.6
+            // push_time *= (1 + delta_y / target_height)
+            // GameUtils.tweenScaleTo(this.current_block.container, 1, 1 - delta_scale_y, 0.2 * 1000, null, function(){
+            // 	GameUtils.tweenScaleTo(__this.current_block.container, 1, 1, 0.2 * 1000, null)
+            // }, this)
+            // GameUtils.tweenMoveBy(this.push_scale_player, 0, delta_y, 0.2 * 1000, null, function(){
+            // 	if(callback)
+            // 	{
+            // 		callback(push_time)
+            // 	}
+            // }, this)
+        };
+        StartGameScene.prototype.jump_to_next_block = function (push_time, callback) {
+            if (push_time === void 0) { push_time = null; }
             if (callback === void 0) { callback = null; }
             var global_block_center = this.next_block.getCenterGlobalPoint();
             var global_player_point = GameUtils.getPlayerGlobalPoint();
             var is_verse = global_block_center.x < global_player_point.x; //方向向右.
             var global_center_top_point = new egret.Point();
             var global_target_point = new egret.Point();
-            var time = GameUtils.calcTimeWhenPlayerMovePoint(global_block_center.x, global_block_center.y);
-            var seg_time = GameUtils.calcPlayerMovePoints(time, global_center_top_point, global_target_point);
+            if (!push_time) {
+                push_time = GameUtils.calcTimeWhenPlayerMovePoint(global_block_center.x, global_block_center.y);
+            }
+            // let time = GameUtils.calcTimeWhenPlayerMovePoint(global_block_center.x, global_block_center.y)
+            var seg_time = GameUtils.calcPlayerMovePoints(push_time, global_center_top_point, global_target_point);
             var local_center_point = GameUtils.convertGlobalPoint2PlayerLocalPoint(global_center_top_point.x, global_center_top_point.y);
             var local_target_point = GameUtils.convertGlobalPoint2PlayerLocalPoint(global_target_point.x, global_target_point.y);
             var is_center_on_block = true;
@@ -1479,6 +1637,11 @@ var ui;
             }, this);
         };
         StartGameScene.prototype.onClick = function (event) {
+            // console.log("###########", this.user_info, this.hasLogin)
+            // if(!this.hasLogin || !this.user_info){
+            // 	ui.PanelManager.instance.showMessage("您还未授权登录")
+            // 	return
+            // }
             this.parent.removeChild(this);
             this.is_destory = true;
             ui.PanelManager.instance.showGamePanel();

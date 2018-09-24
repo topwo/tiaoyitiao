@@ -12,6 +12,8 @@ class GameController {
 	private _jumpSound:egret.Sound = null
 	private _jumpSoundChannel:egret.SoundChannel = null
 
+	public start_play_time:number = 0
+	
 	public constructor() {
 	}
 

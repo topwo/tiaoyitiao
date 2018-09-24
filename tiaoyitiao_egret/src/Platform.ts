@@ -10,6 +10,13 @@ declare interface Platform {
 
     login(): Promise<any>
 
+    setUserCloudStorage(KVDataList:any):Promise<any>;
+
+    getSetting():Promise<any>;
+
+    getUserCloudStorage(key_list:Array<string>):Promise<any>;
+
+    openDataContext:any;
 }
 
 class DebugPlatform implements Platform {
@@ -19,6 +26,19 @@ class DebugPlatform implements Platform {
     async login() {
 
     }
+
+    async setUserCloudStorage(KVDataList:any):Promise<any> {
+
+    }
+
+    async getSetting():Promise<any>{
+
+    }
+
+    async getUserCloudStorage(key_list:Array<string>):Promise<any>{
+
+    }
+    openDataContext:any;
 }
 
 

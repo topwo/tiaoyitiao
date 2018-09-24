@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <e:Skin class="StartGameSkin" width="640" height="1138" xmlns:e="http://ns.egret.com/eui" xmlns:w="http://ns.egret.com/wing">
 	<e:Image source="bg_jpg" x="0" y="0"/>
+	<e:Button id="btn_rank" label="" anchorOffsetX="0" width="258" anchorOffsetY="0" height="85.27" scaleX="0.8" scaleY="0.8" horizontalCenter="0" verticalCenter="496">
+		<e:skinName>
+			<e:Skin states="up,down,disabled">
+			<e:Image width="100%" height="100%" source="rankingtitle_png"/>
+			<e:Label id="labelDisplay" horizontalCenter="0" verticalCenter="0"/>
+			</e:Skin>
+		</e:skinName>
+	</e:Button>
 	<e:Group id="move_container" width="640" height="1136" x="0" y="0" touchEnabled="false" touchThrough="true">
 		<e:Group id="block_container" width="640" height="1136" x="0" y="0" touchEnabled="false" touchThrough="true">
 			<e:Image source="block1_png" x="32" y="702" scaleX="0.8" scaleY="0.8" visible="false"/>
@@ -22,4 +30,15 @@
 		</e:Skin>
 		</e:skinName>
 	</e:Button>
+	<e:Group id="rank_group" width="640" height="1138" x="0" y="0" touchEnabled="true" touchThrough="false" visible="false">
+		<e:Rect width="640" height="1138" x="0" y="0" scaleX="1" scaleY="1" fillColor="0x9b9696"/>
+		<e:Button id="btn_close" label="关闭" verticalCenter="-514.5" horizontalCenter="-20.5" touchChildren="true" touchEnabled="true" enabled="true" x="170" y="896" scaleX="1" scaleY="1" anchorOffsetY="0" height="57" anchorOffsetX="0" width="159">
+			<e:skinName>
+				<e:Skin states="up,down,disabled">
+				<e:Image width="100%" height="100%" source="button_png"/>
+				<e:Label id="labelDisplay" horizontalCenter="0" verticalCenter="0"/>
+				</e:Skin>
+			</e:skinName>
+		</e:Button>
+	</e:Group>
 </e:Skin>

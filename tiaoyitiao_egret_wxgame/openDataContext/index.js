@@ -48,7 +48,7 @@ context.globalCompositeOperation = "source-over";
  * 包括姓名，头像图片，得分
  * 排位序号i会根据parge*perPageNum+i+1进行计算
  */
-const totalGroup = [{
+let totalGroup = [{
     key: 1,
     name: "1111111111",
     url: assets.icon,
@@ -156,7 +156,7 @@ function drawRankPanel() {
   const title = assets.title;
   //根据title的宽高计算一下位置;
   const titleX = offsetX_rankToBorder + (rankWidth - title.width) / 2;
-  const titleY = offsetY_rankToBorder + title.height + 40;
+  const titleY = offsetY_rankToBorder + title.height;
   context_drawImage(title, titleX, titleY);
   //获取当前要渲染的数据组
 
@@ -205,8 +205,14 @@ function init() {
  * 创建两个点击按钮
  */
 function drawButton() {
+    let textSize = context.measureText("下一页")
+    let textWidth = textSize.width
+    let textHeight = textSize.height
+    console.log("#####drawButton############",textHeight, textSize)
   context_drawImage(assets.button, nextButtonX, nextButtonY, buttonWidth, buttonHeight);
+  context.fillText("下一页", nextButtonX + buttonWidth / 2 - textWidth / 2, nextButtonY + buttonHeight / 2 + 10, textMaxSize);
   context_drawImage(assets.button, lastButtonX, lastButtonY, buttonWidth, buttonHeight);
+  context.fillText("上一页", lastButtonX + buttonWidth / 2 - textWidth / 2, lastButtonY + buttonHeight / 2 + 10, textMaxSize);
 }
 
 
@@ -234,7 +240,8 @@ function drawByData(data, i) {
   context.fillText(data.key + "", x, startY + i * preOffsetY + textOffsetY, textMaxSize);
   x += indexWidth + intervalX;
   //绘制头像
-  context_drawImage(assets.icon, x, startY + i * preOffsetY + (barHeight - avatarSize) / 2, avatarSize, avatarSize);
+  context_drawImage(data.open_icon, x, startY + i * preOffsetY + (barHeight - avatarSize) / 2, avatarSize, avatarSize);
+  // context_drawImage(assets.icon, x, startY + i * preOffsetY + (barHeight - avatarSize) / 2, avatarSize, avatarSize);
   x += avatarSize + intervalX;
   //绘制名称
   context.fillText(data.name + "", x, startY + i * preOffsetY + textOffsetY, textMaxSize);
@@ -444,8 +451,9 @@ function preloadAssets() {
     const img = wx.createImage();
     img.onload = () => {
       preloaded++;
+      renderDirty = true
       if (preloaded == count) {
-        // console.log("加载完成");
+        console.log("preloadAssets  加载完成", assetsUrl[asset], asset);
         hasLoadRes = true;
       }
 
@@ -453,6 +461,18 @@ function preloadAssets() {
     img.src = assetsUrl[asset];
     assets[asset] = img;
   }
+}
+
+function preload_asset(asset_name, asset_url)
+{
+    const img = wx.createImage();
+    img.onload = () => {
+        renderDirty = true
+    }
+    assetsUrl[asset_name] = asset_url;
+    img.src = asset_url;
+    assets[asset_name] = img;
+    return img
 }
 
 
@@ -501,6 +521,62 @@ function addOpenDataContextListener() {
        */
       // console.log('加载资源')
       preloadAssets();
+    } else if(data.command == "showRank"){
+      let rank_key = data.rank_key
+      wx.getUserCloudStorage({
+          keyList: ["tiaoyitiao_score"],
+          success:  (res) => {
+            console.log("platform.js => 获取用户数据成功", res);
+          }
+      })
+      wx.getFriendCloudStorage({
+          keyList: [rank_key],
+          success:  (res) => {
+            let new_totalGroup = []
+            let all_datas = res.data
+            for(let index = 0; index < all_datas.length; index ++)
+            {
+              let curr_data = all_datas[index]
+              let KVDataList = curr_data.KVDataList
+              let new_item = {}
+              new_item.url = curr_data.avatarUrl
+              new_item.name = curr_data.nickname
+              new_item.scroes = 0
+              new_item.time = 0
+              new_item.openid = curr_data.openid
+              new_item.open_icon = preload_asset(new_item.openid, new_item.url)
+              for(let data_index = 0; data_index < KVDataList.length; data_index++)
+              {
+                let curr_kv_data = KVDataList[data_index]
+                if(curr_kv_data.key == rank_key)
+                {
+                    let object_value = JSON.parse(curr_kv_data.value)
+                    new_item.scroes = object_value["wxgame"]["score"]
+                    new_item.time = object_value["cost_ms"]
+                    break
+                }
+              }
+              new_totalGroup.push(new_item)
+            }
+            let compare_func = function(item1, item2){
+                if(item1.scroes  != item2.scroes){
+                    return item1.scroes < item2.scroes
+                }else{
+                    return item1.time < item2.time
+                }
+            }
+            new_totalGroup.sort(compare_func)
+            for(let data_index = 0; data_index < new_totalGroup.length; data_index++)
+            {
+                let curr_group_item = new_totalGroup[data_index]
+                curr_group_item.key = data_index + 1
+            }
+
+            totalGroup = new_totalGroup
+            renderDirty = true
+            console.log("platform.js => 获取好友数据成功", totalGroup, res);
+          }
+      })
     }
   });
 }

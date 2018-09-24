@@ -22,7 +22,7 @@ module ui {
 			this.center.x = (this.node1.x + this.node3.x) / 2;
 			this.center.y = (this.node2.y + this.node4.y) / 2 + 20;
 			this.addChild(this.center);
-			console.log(this.center.x, this.center.y);
+			// console.log(this.center.x, this.center.y);
 			
 			this.radio_right = (this.node3.y - this.node4.y) / (this.node3.x - this.node4.x)
 			this.radio_left = (this.node1.y - this.node4.y) / (this.node1.x - this.node4.x)

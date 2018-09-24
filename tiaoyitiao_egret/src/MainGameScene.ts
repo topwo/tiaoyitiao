@@ -1,7 +1,5 @@
 module ui {
 
-	
-
 	export class MainGameScene extends ui.BaseGameScene {
 
 		
@@ -29,6 +27,9 @@ module ui {
 			this.touchLayer.addEventListener(egret.TouchEvent.TOUCH_END, this.onTouchEnd, this);
 
 			GameController.instance.setMainGameScene(this);
+			
+			GameController.instance.start_play_time = new Date().getSeconds();
+			
 		}
 
 		private generateNextBlock():ui.BlockObject{
@@ -223,6 +224,11 @@ module ui {
 			GameUtils.tweenBounceUp(this.player, local_in_player_container.y, 50, 0.2 * 1000, 0.1 * 1000, function(){
 				this.is_in_jumping = false
 			}, this)
+		}
+
+		public close():void
+		{
+			this.parent.removeChild(this)
 		}
 	}
 }

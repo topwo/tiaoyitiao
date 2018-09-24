@@ -14,32 +14,38 @@ var egret = window.egret;window.skins={};
 	__extends(block, _super);
 	function block() {
 		_super.call(this);
-		this.skinParts = ["img","node1","node2","node3","node4","label_index"];
+		this.skinParts = ["img","node1","node2","node3","node4","label_index","container"];
 		
 		this.height = 240;
 		this.width = 358;
-		this.elementsContent = [this._Group1_i()];
+		this.elementsContent = [this.container_i()];
 	}
 	var _proto = block.prototype;
 
-	_proto._Group1_i = function () {
+	_proto.container_i = function () {
 		var t = new eui.Group();
+		this.container = t;
+		t.anchorOffsetX = 179;
+		t.anchorOffsetY = 240;
 		t.height = 240;
 		t.rotation = 0;
+		t.scaleY = 1;
 		t.width = 358;
-		t.x = 0;
-		t.y = 0;
+		t.x = 179;
+		t.y = 240;
 		t.elementsContent = [this.img_i(),this.node1_i(),this.node2_i(),this.node3_i(),this.node4_i(),this.label_index_i()];
 		return t;
 	};
 	_proto.img_i = function () {
 		var t = new eui.Image();
 		this.img = t;
+		t.anchorOffsetX = 179;
+		t.anchorOffsetY = 240;
 		t.scaleX = 1;
 		t.scaleY = 1;
 		t.source = "block1_png";
-		t.x = 0;
-		t.y = 0;
+		t.x = 179;
+		t.y = 240;
 		return t;
 	};
 	_proto.node1_i = function () {
@@ -816,7 +822,7 @@ var egret = window.egret;window.skins={};
 		_proto._Image1_i = function () {
 			var t = new eui.Image();
 			t.percentHeight = 100;
-			t.source = "start_btn_png";
+			t.source = "rankingtitle_png";
 			t.percentWidth = 100;
 			return t;
 		};
@@ -830,13 +836,93 @@ var egret = window.egret;window.skins={};
 		return StartGameSkin$Skin2;
 	})(eui.Skin);
 
+	var StartGameSkin$Skin3 = 	(function (_super) {
+		__extends(StartGameSkin$Skin3, _super);
+		function StartGameSkin$Skin3() {
+			_super.call(this);
+			this.skinParts = ["labelDisplay"];
+			
+			this.elementsContent = [this._Image1_i(),this.labelDisplay_i()];
+			this.states = [
+				new eui.State ("up",
+					[
+					])
+				,
+				new eui.State ("down",
+					[
+					])
+				,
+				new eui.State ("disabled",
+					[
+					])
+			];
+		}
+		var _proto = StartGameSkin$Skin3.prototype;
+
+		_proto._Image1_i = function () {
+			var t = new eui.Image();
+			t.percentHeight = 100;
+			t.source = "start_btn_png";
+			t.percentWidth = 100;
+			return t;
+		};
+		_proto.labelDisplay_i = function () {
+			var t = new eui.Label();
+			this.labelDisplay = t;
+			t.horizontalCenter = 0;
+			t.verticalCenter = 0;
+			return t;
+		};
+		return StartGameSkin$Skin3;
+	})(eui.Skin);
+
+	var StartGameSkin$Skin4 = 	(function (_super) {
+		__extends(StartGameSkin$Skin4, _super);
+		function StartGameSkin$Skin4() {
+			_super.call(this);
+			this.skinParts = ["labelDisplay"];
+			
+			this.elementsContent = [this._Image1_i(),this.labelDisplay_i()];
+			this.states = [
+				new eui.State ("up",
+					[
+					])
+				,
+				new eui.State ("down",
+					[
+					])
+				,
+				new eui.State ("disabled",
+					[
+					])
+			];
+		}
+		var _proto = StartGameSkin$Skin4.prototype;
+
+		_proto._Image1_i = function () {
+			var t = new eui.Image();
+			t.percentHeight = 100;
+			t.source = "button_png";
+			t.percentWidth = 100;
+			return t;
+		};
+		_proto.labelDisplay_i = function () {
+			var t = new eui.Label();
+			this.labelDisplay = t;
+			t.horizontalCenter = 0;
+			t.verticalCenter = 0;
+			return t;
+		};
+		return StartGameSkin$Skin4;
+	})(eui.Skin);
+
 	function StartGameSkin() {
 		_super.call(this);
-		this.skinParts = ["block_container","player_img","player","player_container","move_container","btn_start"];
+		this.skinParts = ["btn_rank","block_container","player_img","push_scale_player","player","player_container","move_container","btn_start","btn_close","rank_group"];
 		
 		this.height = 1138;
 		this.width = 640;
-		this.elementsContent = [this._Image1_i(),this.move_container_i(),this._Label1_i(),this.btn_start_i()];
+		this.elementsContent = [this._Image1_i(),this.btn_rank_i(),this.move_container_i(),this._Label1_i(),this.btn_start_i(),this.rank_group_i()];
 	}
 	var _proto = StartGameSkin.prototype;
 
@@ -845,6 +931,21 @@ var egret = window.egret;window.skins={};
 		t.source = "bg_jpg";
 		t.x = 0;
 		t.y = 0;
+		return t;
+	};
+	_proto.btn_rank_i = function () {
+		var t = new eui.Button();
+		this.btn_rank = t;
+		t.anchorOffsetX = 0;
+		t.anchorOffsetY = 0;
+		t.height = 85.27;
+		t.horizontalCenter = 0;
+		t.label = "";
+		t.scaleX = 0.8;
+		t.scaleY = 0.8;
+		t.verticalCenter = 496;
+		t.width = 258;
+		t.skinName = StartGameSkin$Skin2;
 		return t;
 	};
 	_proto.move_container_i = function () {
@@ -907,6 +1008,20 @@ var egret = window.egret;window.skins={};
 		t.width = 48;
 		t.x = 56;
 		t.y = 928;
+		t.elementsContent = [this.push_scale_player_i()];
+		return t;
+	};
+	_proto.push_scale_player_i = function () {
+		var t = new eui.Group();
+		this.push_scale_player = t;
+		t.anchorOffsetX = 24;
+		t.anchorOffsetY = 130;
+		t.height = 130;
+		t.scaleX = 0.6;
+		t.scaleY = 0.6;
+		t.width = 48;
+		t.x = 24;
+		t.y = 130;
 		t.elementsContent = [this.player_img_i()];
 		return t;
 	};
@@ -941,7 +1056,51 @@ var egret = window.egret;window.skins={};
 		t.touchChildren = true;
 		t.touchEnabled = true;
 		t.verticalCenter = 379.5;
-		t.skinName = StartGameSkin$Skin2;
+		t.skinName = StartGameSkin$Skin3;
+		return t;
+	};
+	_proto.rank_group_i = function () {
+		var t = new eui.Group();
+		this.rank_group = t;
+		t.height = 1138;
+		t.touchEnabled = true;
+		t.touchThrough = false;
+		t.visible = false;
+		t.width = 640;
+		t.x = 0;
+		t.y = 0;
+		t.elementsContent = [this._Rect1_i(),this.btn_close_i()];
+		return t;
+	};
+	_proto._Rect1_i = function () {
+		var t = new eui.Rect();
+		t.fillColor = 0x9b9696;
+		t.height = 1138;
+		t.scaleX = 1;
+		t.scaleY = 1;
+		t.width = 640;
+		t.x = 0;
+		t.y = 0;
+		return t;
+	};
+	_proto.btn_close_i = function () {
+		var t = new eui.Button();
+		this.btn_close = t;
+		t.anchorOffsetX = 0;
+		t.anchorOffsetY = 0;
+		t.enabled = true;
+		t.height = 57;
+		t.horizontalCenter = -20.5;
+		t.label = "关闭";
+		t.scaleX = 1;
+		t.scaleY = 1;
+		t.touchChildren = true;
+		t.touchEnabled = true;
+		t.verticalCenter = -514.5;
+		t.width = 159;
+		t.x = 170;
+		t.y = 896;
+		t.skinName = StartGameSkin$Skin4;
 		return t;
 	};
 	return StartGameSkin;
