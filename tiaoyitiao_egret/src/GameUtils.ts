@@ -26,6 +26,12 @@ class GameConfig{
 	public static push_down_acce:number = 40;  //下压加速度
 	public static gravity_acce:number = 10;  //重力加速度
 	public static move_speed_distance:number = 50; //移动的速度
+
+	public static push_down_acce_Version2:number = 400;  //下压加速度
+	public static init_y_speed:number = 1600;
+	public static gravity_acce_Version2:number = 12800;  //重力加速度
+	public static move_speed_distance_Version2:number = 100; //移动的速度
+	public static move_acce:number = 1200; //移动加速度
 }
 
 class GameUtils {
@@ -384,6 +390,49 @@ class GameUtils {
 		global_target_point.x = target_x
 		global_target_point.y = target_y
 		return 1000 * 0.15
+	}
+
+	public static calcPlayerMovePoints2(push_down_time:number, global_center_top_point:egret.Point, global_target_point:egret.Point):number
+	{
+		let push_down_speed = GameConfig.push_down_acce_Version2 * push_down_time + GameConfig.init_y_speed  //松开后的速度
+		let half_move_time = push_down_speed / GameConfig.gravity_acce_Version2  //计算向上运动的时间
+		let total_move_time = half_move_time * 2
+
+		let final_speed_x = push_down_time * GameConfig.move_acce + GameConfig.move_speed_distance_Version2
+		let speed_distance = final_speed_x * total_move_time
+		// let speed_distance = GameConfig.move_speed_distance_Version2 * total_move_time + 0.5 * total_move_time * GameConfig.move_acce * total_move_time;
+		let target_height = push_down_speed * half_move_time * 0.5  //计算向上运动的高度
+
+		let global_block_center = GameController.instance.getNextBlock().getCenterGlobalPoint();
+		let global_player_point = GameUtils.getPlayerGlobalPoint();
+		let temp_degree = Math.atan((global_block_center.y - global_player_point.y) / (global_block_center.x - global_player_point.x))
+		if(global_block_center.x > global_player_point.x){
+			temp_degree = -1 * temp_degree
+		}else{
+			temp_degree = Math.PI - temp_degree
+		}
+
+		let rate_x = Math.cos(temp_degree)
+		let rate_y = Math.sin(temp_degree)
+
+		let target_x = global_player_point.x + speed_distance * rate_x
+		let target_y = global_player_point.y - speed_distance * rate_y
+
+		let origin_center_x = (global_player_point.x + target_x) / 2;
+		let oring_center_y = (global_player_point.y + target_y) / 2;
+
+		let center_x = origin_center_x - target_height * Math.abs(rate_y);
+		if(global_block_center.x < global_player_point.x){
+			center_x = origin_center_x  + target_height * Math.abs(rate_y);
+		}
+		let center_y = oring_center_y - target_height * Math.abs(rate_x);
+
+		global_center_top_point.x = center_x
+		global_center_top_point.y = center_y
+
+		global_target_point.x = target_x
+		global_target_point.y = target_y
+		return 1000 * 0.18
 	}
 
 	public static addButtonClick(button:eui.Button, callback:Function, callbackThis:Object):void

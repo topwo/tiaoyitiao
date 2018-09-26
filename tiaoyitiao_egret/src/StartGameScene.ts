@@ -29,21 +29,26 @@ module ui {
 
 			this.startLogin()
 
-			platform.openDataContext.postMessage({
-				command: "loadRes"
-			});
-
-			GameUtils.addButtonClick(this.btn_close, function(){
+			if(typeof wx == "object"){
 				platform.openDataContext.postMessage({
-					command: "close"
+					command: "loadRes"
 				});
-				__this.rank_group.visible = false;
-			}, this)
 
-			platform.openDataContext.postMessage({
-				command: "showRank",
-				rank_key: "tiaoyitiao_score"
-			});
+				GameUtils.addButtonClick(this.btn_close, function(){
+					platform.openDataContext.postMessage({
+						command: "close"
+					});
+					__this.rank_group.visible = false;
+				}, this)
+
+				platform.openDataContext.postMessage({
+					command: "showRank",
+					rank_key: "tiaoyitiao_score"
+				});
+			}else{
+
+			}
+			
 		}
 
 		private onClickRank():void

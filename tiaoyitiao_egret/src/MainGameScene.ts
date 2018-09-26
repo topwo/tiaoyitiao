@@ -52,7 +52,7 @@ module ui {
 
 			let global_center_top_point = new egret.Point()
 			let global_target_point = new egret.Point()
-			let seg_time = GameUtils.calcPlayerMovePoints(time, global_center_top_point, global_target_point)
+			let seg_time = GameUtils.calcPlayerMovePoints2(time, global_center_top_point, global_target_point)
 
 			let local_center_point = GameUtils.convertGlobalPoint2PlayerLocalPoint(global_center_top_point.x, global_center_top_point.y);
 			let local_target_point = GameUtils.convertGlobalPoint2PlayerLocalPoint(global_target_point.x, global_target_point.y);

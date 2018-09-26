@@ -630,6 +630,11 @@ var GameConfig = (function () {
     GameConfig.push_down_acce = 40; //下压加速度
     GameConfig.gravity_acce = 10; //重力加速度
     GameConfig.move_speed_distance = 50; //移动的速度
+    GameConfig.push_down_acce_Version2 = 400; //下压加速度
+    GameConfig.init_y_speed = 1600;
+    GameConfig.gravity_acce_Version2 = 12800; //重力加速度
+    GameConfig.move_speed_distance_Version2 = 100; //移动的速度
+    GameConfig.move_acce = 1200; //移动加速度
     return GameConfig;
 }());
 __reflect(GameConfig.prototype, "GameConfig");
@@ -939,6 +944,40 @@ var GameUtils = (function () {
         global_target_point.y = target_y;
         return 1000 * 0.15;
     };
+    GameUtils.calcPlayerMovePoints2 = function (push_down_time, global_center_top_point, global_target_point) {
+        var push_down_speed = GameConfig.push_down_acce_Version2 * push_down_time + GameConfig.init_y_speed; //松开后的速度
+        var half_move_time = push_down_speed / GameConfig.gravity_acce_Version2; //计算向上运动的时间
+        var total_move_time = half_move_time * 2;
+        var final_speed_x = push_down_time * GameConfig.move_acce + GameConfig.move_speed_distance_Version2;
+        var speed_distance = final_speed_x * total_move_time;
+        // let speed_distance = GameConfig.move_speed_distance_Version2 * total_move_time + 0.5 * total_move_time * GameConfig.move_acce * total_move_time;
+        var target_height = push_down_speed * half_move_time * 0.5; //计算向上运动的高度
+        var global_block_center = GameController.instance.getNextBlock().getCenterGlobalPoint();
+        var global_player_point = GameUtils.getPlayerGlobalPoint();
+        var temp_degree = Math.atan((global_block_center.y - global_player_point.y) / (global_block_center.x - global_player_point.x));
+        if (global_block_center.x > global_player_point.x) {
+            temp_degree = -1 * temp_degree;
+        }
+        else {
+            temp_degree = Math.PI - temp_degree;
+        }
+        var rate_x = Math.cos(temp_degree);
+        var rate_y = Math.sin(temp_degree);
+        var target_x = global_player_point.x + speed_distance * rate_x;
+        var target_y = global_player_point.y - speed_distance * rate_y;
+        var origin_center_x = (global_player_point.x + target_x) / 2;
+        var oring_center_y = (global_player_point.y + target_y) / 2;
+        var center_x = origin_center_x - target_height * Math.abs(rate_y);
+        if (global_block_center.x < global_player_point.x) {
+            center_x = origin_center_x + target_height * Math.abs(rate_y);
+        }
+        var center_y = oring_center_y - target_height * Math.abs(rate_x);
+        global_center_top_point.x = center_x;
+        global_center_top_point.y = center_y;
+        global_target_point.x = target_x;
+        global_target_point.y = target_y;
+        return 1000 * 0.18;
+    };
     GameUtils.addButtonClick = function (button, callback, callbackThis) {
         button.enabled = true;
         button.touchEnabled = true;
@@ -1101,7 +1140,7 @@ var ui;
             var is_verse = global_block_center.x < global_player_point.x; //方向向右.
             var global_center_top_point = new egret.Point();
             var global_target_point = new egret.Point();
-            var seg_time = GameUtils.calcPlayerMovePoints(time, global_center_top_point, global_target_point);
+            var seg_time = GameUtils.calcPlayerMovePoints2(time, global_center_top_point, global_target_point);
             var local_center_point = GameUtils.convertGlobalPoint2PlayerLocalPoint(global_center_top_point.x, global_center_top_point.y);
             var local_target_point = GameUtils.convertGlobalPoint2PlayerLocalPoint(global_target_point.x, global_target_point.y);
             var center_jump_result = GameUtils.isPointOnBlock(global_target_point.x, global_target_point.y);
@@ -1396,19 +1435,23 @@ var ui;
                 __this.start_generate_simulate_animation();
             }, 0.5 * 1000);
             _this.startLogin();
-            platform.openDataContext.postMessage({
-                command: "loadRes"
-            });
-            GameUtils.addButtonClick(_this.btn_close, function () {
+            if (typeof wx == "object") {
                 platform.openDataContext.postMessage({
-                    command: "close"
+                    command: "loadRes"
                 });
-                __this.rank_group.visible = false;
-            }, _this);
-            platform.openDataContext.postMessage({
-                command: "showRank",
-                rank_key: "tiaoyitiao_score"
-            });
+                GameUtils.addButtonClick(_this.btn_close, function () {
+                    platform.openDataContext.postMessage({
+                        command: "close"
+                    });
+                    __this.rank_group.visible = false;
+                }, _this);
+                platform.openDataContext.postMessage({
+                    command: "showRank",
+                    rank_key: "tiaoyitiao_score"
+                });
+            }
+            else {
+            }
             return _this;
         }
         StartGameScene.prototype.onClickRank = function () {
