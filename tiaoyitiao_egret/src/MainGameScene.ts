@@ -151,7 +151,7 @@ module ui {
 			current_scale_x = Math.min(current_scale_x, 1.8)
 			current_scale_y = Math.max(current_scale_y, 0.7)
 
-			this.current_block.container.scaleY = current_scale_y
+			// this.current_block.container.scaleY = current_scale_y
 			this.player.scaleX = current_scale_x
 			this.player.scaleY = current_scale_y
 
